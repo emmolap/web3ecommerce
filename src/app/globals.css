@@ -24,3 +24,14 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Tailwind example */
+.btn-primary {
+  @apply bg-[#C2933E] text-white px-6 py-2 rounded hover:bg-[#a87c32];
+}
+
+.btn-secondary {
+  @apply bg-[#7C1C2B] text-white px-6 py-2 rounded hover:bg-[#66101f];
+}
+
+accent- #1F7349(hover effect) neutral- #FDF7F0 (background) body text-#222222
