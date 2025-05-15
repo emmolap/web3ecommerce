@@ -15,6 +15,7 @@
     "@prisma/client": "^6.7.0",
     "@reduxjs/toolkit": "^2.8.2",
     "@stripe/stripe-js": "^7.3.0",
+    "cryptocurrency-icons": "^0.18.1",
     "flowbite": "^3.1.2",
     "next": "15.3.2",
     "next-auth": "^4.24.11",

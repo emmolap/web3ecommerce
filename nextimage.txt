@@ -1,0 +1,60 @@
+=> next/image component
+import Image from 'next/image';
+
+<Box position="relative" h="48" w="full">
+  <Image
+    src={product.image}
+    alt={product.name}
+    layout="fill"
+    objectFit="cover"
+    quality={85}
+    placeholder="blur"
+    blurDataURL="/placeholder.jpg"
+  />
+</Box>
+
+Insert JSON-LD in your product detail or card page (wherever indexed):
+import Head from 'next/head';
+
+<Head>
+  <script
+    type="application/ld+json"
+    dangerouslySetInnerHTML={{
+      __html: JSON.stringify({
+        '@context': 'https://schema.org/',
+        '@type': 'Product',
+        name: product.name,
+        image: [product.image],
+        description: product.description,
+        sku: product.sku || 'SKU-001',
+        brand: {
+          '@type': 'Brand',
+          name: product.brand || 'Generic',
+        },
+        offers: {
+          '@type': 'Offer',
+          url: `https://yoursite.com/products/${product.id}`,
+          priceCurrency: 'USD',
+          price: discountedPrice,
+          priceValidUntil: '2025-12-31',
+          availability: product.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        },
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: product.rating || 4.5,
+          reviewCount: product.reviewCount || 32,
+        },
+      }),
+    }}
+  />
+</Head>
+
+You're already using Chakra’s Image, but for native <img> or next/image, set:
+loading="lazy"
+
+To improve UX, use a skeleton before image loads:
+import { Skeleton } from "@chakra-ui/react";
+
+<Skeleton isLoaded={!!product.image} h="48" w="full">
+  <Image src={product.image} ... />
+</Skeleton>
