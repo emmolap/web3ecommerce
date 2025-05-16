@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
@@ -18,11 +18,35 @@ import {
   Select,
   useToast,
   Radio,
-  RadioGroup
+  RadioGroup,
+  Image
 } from "@chakra-ui/react";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCart } from "../store/slices/cartSlice";
 import { useNavigate } from "react-router-dom";
+
+const CRYPTO_OPTIONS = {
+  BTC: {
+    address: "bc1qxyz...abcd",
+    qr: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=bc1qxyz...abcd"
+  },
+  SOL: {
+    address: "5Kd3J...1a2b3c",
+    qr: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=5Kd3J...1a2b3c"
+  },
+  SUI: {
+    address: "0xabc123...789xyz",
+    qr: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=0xabc123...789xyz"
+  },
+  USDT: {
+    address: "TUSDTxyz...abc",
+    qr: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TUSDTxyz...abc"
+  },
+  ETH: {
+    address: "0xethaddress...123",
+    qr: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=0xethaddress...123"
+  }
+};
 
 const CheckoutPage = () => {
   const cart = useSelector((state) => state.cart.items);
@@ -32,6 +56,13 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("stripe");
+  const [selectedCrypto, setSelectedCrypto] = useState("BTC");
+
+  useEffect(() => {
+    if (paymentMethod === "walletconnect") {
+      toast({ title: "WalletConnect support coming soon.", status: "info", duration: 3000, isClosable: true });
+    }
+  }, [paymentMethod]);
 
   const handleStripePayment = () => {
     toast({ title: "Stripe payment simulated.", status: "info", duration: 3000, isClosable: true });
@@ -40,6 +71,11 @@ const CheckoutPage = () => {
 
   const handlePaystackPayment = () => {
     toast({ title: "Paystack payment simulated.", status: "info", duration: 3000, isClosable: true });
+    simulateOrder();
+  };
+
+  const handleCryptoConfirmation = () => {
+    toast({ title: `${selectedCrypto} payment manually confirmed.`, status: "info", duration: 3000, isClosable: true });
     simulateOrder();
   };
 
@@ -57,6 +93,7 @@ const CheckoutPage = () => {
       navigate("/order-confirmation");
     }, 2000);
   };
+
 
   return (
     <Box px={4} py={8} maxW="7xl" mx="auto">
@@ -120,21 +157,46 @@ const CheckoutPage = () => {
                   <Stack direction="row">
                     <Radio value="stripe">Stripe</Radio>
                     <Radio value="paystack">Paystack</Radio>
+                    <Radio value="crypto">Crypto</Radio>
+                    <Radio value="walletconnect">WalletConnect</Radio>
                   </Stack>
                 </RadioGroup>
               </FormControl>
             </Box>
 
-            <Button
-              mt={6}
-              colorScheme="teal"
-              w="full"
-              onClick={paymentMethod === "stripe" ? handleStripePayment : handlePaystackPayment}
-              isLoading={isPlacingOrder}
-              loadingText="Processing Payment..."
-            >
-              Pay & Place Order
-            </Button>
+            {paymentMethod === "crypto" && (
+              const crypto = CRYPTO_OPTIONS[selectedCrypto];
+            //   return ()
+              <Box mt={4} borderWidth="1px" p={4} borderRadius="md">
+                <FormControl mb={3}>
+                  <FormLabel>Select Coin</FormLabel>
+                  <Select value={selectedCrypto} onChange={(e) => setSelectedCrypto(e.target.value)}>
+                    {Object.keys(CRYPTO_OPTIONS).map((symbol) => (
+                      <option key={symbol} value={symbol}>{symbol}</option>
+                    ))}
+                  </Select>
+                </FormControl>
+                <Text fontWeight="bold" mb={1}>Address:</Text>
+                <Text mb={2} fontFamily="mono" fontSize="sm">{crypto.address}</Text>
+                <Image src={crypto.qr} alt="QR Code" boxSize="150px" />
+                <Button mt={4} colorScheme="green" onClick={handleCryptoConfirmation} isLoading={isPlacingOrder}>
+                  I've Paid
+                </Button>
+              </Box>
+            )}
+
+            {(paymentMethod === "stripe" || paymentMethod === "paystack") && (
+              <Button
+                mt={6}
+                colorScheme="teal"
+                w="full"
+                onClick={paymentMethod === "stripe" ? handleStripePayment : handlePaystackPayment}
+                isLoading={isPlacingOrder}
+                loadingText="Processing Payment..."
+              >
+                Pay & Place Order
+              </Button>
+            )}
           </Box>
         </Grid>
       )}
